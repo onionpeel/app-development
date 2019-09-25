@@ -1,0 +1,31 @@
+mkdir <dir name>
+cd <dir name>
+npm init
+git init
+npm i express body-parser config mongoose concurrently (whatever dependencies you need)
+
+mkdir client
+cd client
+create-react-app .
+(or don't cd into the client folder and instead use: create-react-app client)
+
+[inside client/package.json]:
+"proxy": "http://localhost:5000"
+(In the start.js file, use: const PORT = process.env.PORT || 5000;)
+(The proxy script allow the front end to call to the backend without having to add http://localhost:5000 to each request.  For example, in the front end you can call the backend with just /api/users instead of having to use the full backend address of http://localhost:5000/api/users).
+(React runs on port 3000, which is why you need to set your backend to port 5000).
+
+[inside package.json of the root directory]:
+"scripts": {
+  "client-install": "npm install --prefix client",
+  "start": "node server.js",
+  "server": "nodemon server.js",
+  "client": "npm start --prefix client",
+  "dev": "concurrently \"npm run server\" \"npm run client\"",
+  "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
+}
+(These provide scripts to run the server and client at the same time).
+(server.js is whatever file contains app.listen(port,()=>{})).
+(--prefix lets you cd into a directory before running the stated script command.)
+(concurrently lets you create a script that simultaneously runs two other scripts.  In this case, concurrently is starting up the front and back ends by using the "dev" script).
+("client-install" is a script that is used if someone should clone the project from github.  The client directory will not contain the node modules to run the front end.  This script installs those modules).
