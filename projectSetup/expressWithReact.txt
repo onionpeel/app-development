@@ -18,8 +18,8 @@ create-react-app .
 [inside package.json of the root directory]:
 "scripts": {
   "client-install": "npm install --prefix client",
-  "start": "node server.js",
-  "server": "nodemon server.js",
+  "start": "node src/index.js",
+  "server": "nodemon src/index.js",
   "client": "npm start --prefix client",
   "dev": "concurrently \"npm run server\" \"npm run client\"",
   "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
@@ -29,3 +29,75 @@ create-react-app .
 (--prefix lets you cd into a directory before running the stated script command.)
 (concurrently lets you create a script that simultaneously runs two other scripts.  In this case, concurrently is starting up the front and back ends by using the "dev" script).
 ("client-install" is a script that is used if someone should clone the project from github.  The client directory will not contain the node modules to run the front end.  This script installs those modules).
+
+atom .
+
+[Switch from the command line and got into Atom]
+[In the root directory create this file]:
+.gitignore
+
+[Within .gitignore, add]:
+node_modules/
+config/default.json
+(you will soon create the config folder and default.json file)
+
+[In the root directory, create this folder]:
+src
+
+[In the src directory, create an app.js file.]:
+----------------
+const express = require('express');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.json());
+
+app.get('/', (req, res) => {
+  res.send('Testing the initial app setup');
+});
+
+module.exports = app;
+----------------
+
+[In the src directory, create an index.js file.  This is the file that lets the app run on a port]:
+----------------
+const app = require('./app');
+
+const port = process.env.PORT || 5000;
+
+app.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
+});
+----------------
+
+[In the root directory, create this folder]:
+config
+
+
+[In app.js, below the route declarations]:
+----------------
+if(process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '/../client/build')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'));
+  });
+};
+----------------
+(This is for production.  The static files will be served from the build directory that react generates in the client directory.)
+(The app.get() route is necessary because if the front end has a URL that does not match a defined route in the backend, when that URL is refreshed, it will cause an error.  This app.get() route is a catch-all that serves up the index.html file from the build directory.)
+(The app.get() route needs to be below other route declarations otherwise it will be the default and prevent any other routes from being detected).
+
+
+[You should have been committing changes to the git repo and pushing those up to github.  Make sure that everything is up to date so you can deploy to Heroku]
+
+[In the command prompt of the root of the server directory (make sure you are not in the client folder!)]:
+heroku login
+heroku create
+[Go to the heroku website and select the app name that matches the one that was just created in the terminal prompt]
+Click the "deploy" button
+[Copy the line that is used to set up a heroku git repository.  It looks something like this: heroku git:remote -a fathomless-fortress-16755]
+Paste that line in the terminal prompt.
+[In the terminal prompt]:
+git push heroku master
+
+[If the build succeeds, go to the heroku website and click to open the app.]
