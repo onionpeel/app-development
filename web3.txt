@@ -1,0 +1,20 @@
+To use web3.js:
+The operating system needs to have visual studio v-2015 and python.  This can be set up by opening the command line as the administrator and then running the command:  npm install --global --production windows-build-tools --vs2015
+https://spin.atomicobject.com/2019/03/27/node-gyp-windows/
+
+If this step is not done, there will be an error that shows: node-gyp rebuild
+
+Once this step is done, you can use: npm i web3.js
+But for ethereum it is recommended to use: npm i --save web3@1.0.0-beta.46
+
+This allows web3js to be a dependency in react, but it also prevented other dependencies from being installed.
+To solve this problem, check to see the error when trying to install a dependency.
+It will identify a directory in node_modules.  Go into this module (it was websocket when I did this) and delete the .git folder.
+Then the dependency can be installed.
+This can be done from the command line, or a script can be created or it can be done manually (I did it manually).
+https://github.com/APSL/react-native-version-number/issues/13
+
+Dapps must get permission from the user in order to connect to that user's blockchain address.
+That is done with this line of code, which is run inside of a useEffect() callback:
+const account = await window.ethereum.enable();
+This causes a privacy notice to pop up and the user has to choose to allow the dapp to access the blockchain and get account details.
